@@ -1,24 +1,27 @@
-import { roads } from "../data/roads";
+import Logo from "../components/Logo";
 import RoadCard from "../components/RoadCard";
+import { roads } from "../data/roads";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gray-50 p-4 text-black">
-      <header className="max-w-5xl mx-auto mb-6">
-        <h1 className="text-3xl font-bold mb-1">GB Road Updates</h1>
-        <p className="text-gray-600">
-          Real-time community-led road conditions for Gilgit–Baltistan
-        </p>
+    <main className="min-h-screen bg-white px-4 py-6">
+      <header className="max-w-5xl mx-auto mb-6 gap-2 flex items-center justify-between">
+        <div className="flex flex-col">
+          <Logo />
+          <p className="text-[12px] text-gray-600 max-w-md">
+            Real-time community-led road conditions for Gilgit-Baltistan
+          </p>
+        </div>
       </header>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <section className="max-w-5xl mx-auto flex flex-col gap-4">
         {roads.map((road) => (
           <RoadCard key={road.id} road={road} />
         ))}
-      </div>
+      </section>
 
-      <footer className="max-w-5xl mx-auto mt-12 text-sm text-gray-500 text-center">
-        Not an official government source — Powered by community contributions
+      <footer className="max-w-5xl mx-auto mt-10 text-[12px] text-gray-500">
+        Not an official government source. Information is community reported.
       </footer>
     </main>
   );
