@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <main className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
         
         {/* Header */}
@@ -83,7 +83,7 @@ export default function LoginPage() {
         <div className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
           <Link
-            href="#"
+            href="/signup"
             className="text-[#4a90d9] font-medium hover:underline"
           >
             Create one
