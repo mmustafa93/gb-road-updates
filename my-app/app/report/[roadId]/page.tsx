@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { roads } from "@/data/roads";
 
 export default function ReportRoadPage() {
   const { roadId } = useParams();
-  const road = roads.find((r) => r.id === roadId);
+  const router = useRouter();
 
+  const road = roads.find((r) => r.id === roadId);
   const [submitted, setSubmitted] = useState(false);
+
+  // Redirect to homepage 10 seconds after submission
+  useEffect(() => {
+    if (!submitted) return;
+
+    const timer = setTimeout(() => {
+      router.push("/");
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [submitted, router]);
 
   if (!road) {
     return <p className="p-6">Road not found.</p>;
@@ -16,7 +28,7 @@ export default function ReportRoadPage() {
 
   if (submitted) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
+      <main className="min-h-screen flex items-center justify-center px-4 bg-white">
         <div className="max-w-md text-center">
           <h1 className="text-xl font-bold text-[#1a1a1a]">
             Report submitted
@@ -25,14 +37,17 @@ export default function ReportRoadPage() {
             Thank you for helping keep road information accurate. Your report
             will be reviewed before being published.
           </p>
+          <p className="mt-4 text-xs text-gray-500">
+            You will be redirected to the homepage shortly.
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="max-w-xl mx-auto">
+    <main className="min-h-screen px-4 py-8 bg-white flex items-center">
+      <div className="max-w-xl mx-auto text-gray-600">
         <h1 className="text-xl font-bold text-[#1a1a1a]">
           Report Road Issue
         </h1>
