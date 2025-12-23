@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter  } from "next/navigation";
 import { Road } from "../data/roads";
 
 const STATUS_STYLES = {
@@ -21,6 +22,14 @@ const STATUS_STYLES = {
 export default function RoadCard({ road }: { road: Road }) {
   const [expanded, setExpanded] = useState(false);
   const style = STATUS_STYLES[road.status];
+  const router = useRouter();
+
+  const handleReportClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent collapsing the card
+    router.push("/login");
+    console.log(`Report closure for road: ${road.name}`);
+    alert("You must be logged in to report a road issue.");
+  };
 
   return (
     <div
@@ -29,7 +38,7 @@ export default function RoadCard({ road }: { road: Road }) {
         border rounded-md cursor-pointer bg-white
         transition-all duration-300 ease-in-out
         overflow-hidden
-        ${expanded ? "max-h-[600px]" : "max-h-[110px]"}
+        ${expanded ? "max-h-[650px]" : "max-h-[110px]"}
       `}
     >
       {/* HEADER */}
@@ -45,7 +54,7 @@ export default function RoadCard({ road }: { road: Road }) {
           </p>
         </div>
 
-        {/* Right status — vertically centered */}
+        {/* Right status */}
         <div className="flex items-center">
           <span
             className="text-[12px] font-bold px-3 py-1 rounded-full"
@@ -78,6 +87,23 @@ export default function RoadCard({ road }: { road: Road }) {
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
             <strong>Description:</strong> {road.description}
           </p>
+
+          {/* REPORT BUTTON */}
+          <div className="mt-6">
+            <button
+              onClick={handleReportClick}
+              className="
+                text-sm font-bold
+                px-4 py-2 rounded-md
+                border border-[#D9524A]
+                text-[#D9524A]
+                hover:bg-[#D9524A] hover:text-white
+                transition
+              "
+            >
+              Report Road Closure
+            </button>
+          </div>
         </div>
       )}
     </div>
