@@ -25,11 +25,9 @@ export default function RoadCard({ road }: { road: Road }) {
   const router = useRouter();
 
   const handleReportClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // prevent collapsing the card
-    router.push("/login");
-    console.log(`Report closure for road: ${road.name}`);
-    alert("You must be logged in to report a road issue.");
-  };
+  e.stopPropagation(); // prevent collapsing the card
+  router.push(`/report/${road.id}`);
+};
 
   return (
     <div
