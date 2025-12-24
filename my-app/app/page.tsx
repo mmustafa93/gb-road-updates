@@ -10,11 +10,13 @@ import type { User } from "@supabase/supabase-js";
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
+      setAuthLoading(false);
     });
 
     // Listen for auth changes
@@ -46,7 +48,11 @@ export default function HomePage() {
         </div>
 
         {/* Right: Auth-aware UI */}
-        {user ? (
+        {authLoading ? (
+          <p className="text-sm text-gray-500 font-medium">
+            Loading details…
+          </p>
+        ) : user ? (
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-700 font-medium">
               Hello{" "}

@@ -3,12 +3,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { roads } from "@/data/roads";
+import Logo from "@/components/Logo";
+import { supabase } from "@/lib/supabase/client";
 
 export default function ReportRoadPage() {
-  const { roadId } = useParams();
+  const { roadId } = useParams<{ roadId: string }>();
   const router = useRouter();
 
   const road = roads.find((r) => r.id === roadId);
+
+  const [town, setTown] = useState("");
+  const [duration, setDuration] = useState("");
+  const [cause, setCause] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Redirect to homepage 10 seconds after submission
@@ -45,23 +54,76 @@ export default function ReportRoadPage() {
     );
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("You must be logged in to submit a road report.");
+      setSubmitting(false);
+      return;
+    }
+
+    let photoUrl: string | null = null;
+
+    if (photo) {
+      const filePath = `${user.id}/${Date.now()}-${photo.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("road-reports")
+        .upload(filePath, photo);
+
+      if (uploadError) {
+        console.error(uploadError);
+        alert("Failed to upload photo.");
+        setSubmitting(false);
+        return;
+      }
+
+      photoUrl = supabase.storage
+        .from("road-reports")
+        .getPublicUrl(filePath).data.publicUrl;
+    }
+
+    const { error } = await supabase.from("road_reports").insert({
+      road_id: road.id,
+      road_name: road.name,
+      user_id: user.id,
+      nearest_town: town,
+      blocked_duration: duration,
+      cause,
+      photo_url: photoUrl,
+    });
+
+    if (error) {
+      console.error(error);
+      alert("Failed to submit report.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitted(true);
+    setSubmitting(false);
+  }
+
   return (
-    <main className="min-h-screen px-4 py-8 bg-white flex items-center">
-      <div className="max-w-xl mx-auto text-gray-600">
+    <main className="min-h-screen px-4 py-8 bg-white flex flex-col items-center justify-center gap-6">
+      <Logo />
+
+      <div className="max-w-xl mx-auto text-gray-600 w-full">
         <h1 className="text-xl font-bold text-[#1a1a1a]">
           Report Road Issue
         </h1>
 
-        <p className="mt-1 text-sm text-gray-600">
-          {road.name}
-        </p>
+        <p className="mt-1 text-sm text-gray-600">{road.name}</p>
 
         <form
-          className="mt-6 flex flex-col gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSubmitted(true);
-          }}
+          className="mt-6 flex flex-col gap-3"
+          onSubmit={handleSubmit}
         >
           {/* Nearest town */}
           <div>
@@ -71,6 +133,8 @@ export default function ReportRoadPage() {
             <input
               required
               type="text"
+              value={town}
+              onChange={(e) => setTown(e.target.value)}
               placeholder="e.g. Aliabad, Gahkuch"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
@@ -84,6 +148,8 @@ export default function ReportRoadPage() {
             <input
               required
               type="text"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
               placeholder="e.g. 2 hours, since last night"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
@@ -96,6 +162,8 @@ export default function ReportRoadPage() {
             </label>
             <select
               required
+              value={cause}
+              onChange={(e) => setCause(e.target.value)}
               className="w-full border rounded-md px-3 py-2 text-sm"
             >
               <option value="">Select a cause</option>
@@ -116,6 +184,7 @@ export default function ReportRoadPage() {
             <input
               type="file"
               accept="image/*"
+              onChange={(e) => setPhoto(e.target.files?.[0] || null)}
               className="text-sm"
             />
           </div>
@@ -123,14 +192,16 @@ export default function ReportRoadPage() {
           {/* Submit */}
           <button
             type="submit"
+            disabled={submitting}
             className="
               mt-4 bg-[#D9524A] text-white
               font-bold text-sm
               px-4 py-2 rounded-md
               hover:opacity-90 transition
+              disabled:opacity-50
             "
           >
-            Submit Report
+            {submitting ? "Submitting..." : "Submit Report"}
           </button>
         </form>
       </div>
