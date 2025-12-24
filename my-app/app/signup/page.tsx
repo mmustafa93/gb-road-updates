@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import Logo from "@/components/Logo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -49,7 +50,8 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center px-4">
+    <main className="min-h-screen bg-white flex flex-col items-center justify-center px-4 gap-6">
+      <Logo /> 
       <div className="w-full max-w-md border rounded-md p-6 bg-white">
         <h1 className="text-xl font-bold text-[#1a1a1a]">
           Create an account
@@ -156,12 +158,18 @@ export default function SignupPage() {
         {/* Google signup (wire later) */}
         <button
           className="
-            w-full border border-gray-300
-            text-sm font-medium
+            w-full flex items-center justify-center gap-3 
+            border border-gray-600
+            text-[#1a1a1a] text-sm
             px-4 py-2 rounded-md
             hover:bg-gray-100 transition
           "
         >
+            <img
+                src="./icons8-google.svg"
+                alt="Google logo"
+                className="w-4 h-4"
+            />
           Continue with Google
         </button>
 

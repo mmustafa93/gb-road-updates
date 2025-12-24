@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter  } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 import { Road } from "../data/roads";
 
 const STATUS_STYLES = {
@@ -21,13 +22,46 @@ const STATUS_STYLES = {
 
 export default function RoadCard({ road }: { road: Road }) {
   const [expanded, setExpanded] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
   const style = STATUS_STYLES[road.status];
   const router = useRouter();
 
+  // Get current user
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+  }, []);
+
+  // Countdown + redirect logic
+  useEffect(() => {
+    if (!redirecting) return;
+
+    if (countdown === 0) {
+      router.push("/login");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((c) => c - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [redirecting, countdown, router]);
+
   const handleReportClick = (e: React.MouseEvent) => {
-  e.stopPropagation(); // prevent collapsing the card
-  router.push(`/report/${road.id}`);
-};
+    e.stopPropagation();
+
+    if (user) {
+      router.push(`/report/${road.id}`);
+    } else {
+      setRedirecting(true);
+      setCountdown(5);
+    }
+  };
 
   return (
     <div
@@ -36,13 +70,11 @@ export default function RoadCard({ road }: { road: Road }) {
         border rounded-md cursor-pointer bg-white
         transition-all duration-300 ease-in-out
         overflow-hidden
-        ${expanded ? "max-h-[650px]" : "max-h-[110px]"}
+        ${expanded ? "max-h-[700px]" : "max-h-[110px]"}
       `}
     >
       {/* HEADER */}
       <div className="p-4 flex items-stretch justify-between">
-        
-        {/* Left content */}
         <div className="flex flex-col justify-center">
           <h2 className="text-[18px] font-bold text-[#1a1a1a] leading-tight">
             {road.name}
@@ -52,7 +84,6 @@ export default function RoadCard({ road }: { road: Road }) {
           </p>
         </div>
 
-        {/* Right status */}
         <div className="flex items-center">
           <span
             className="text-[12px] font-bold px-3 py-1 rounded-full"
@@ -75,11 +106,13 @@ export default function RoadCard({ road }: { road: Road }) {
           </p>
 
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
-            <strong>Average Travel Time by Car:</strong> {road.travelTimeCar}
+            <strong>Average Travel Time by Car:</strong>{" "}
+            {road.travelTimeCar}
           </p>
 
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
-            <strong>Average Travel Time by Bus:</strong> {road.travelTimeBus}
+            <strong>Average Travel Time by Bus:</strong>{" "}
+            {road.travelTimeBus}
           </p>
 
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
@@ -87,7 +120,7 @@ export default function RoadCard({ road }: { road: Road }) {
           </p>
 
           {/* REPORT BUTTON */}
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col items-start gap-2">
             <button
               onClick={handleReportClick}
               className="
@@ -101,6 +134,14 @@ export default function RoadCard({ road }: { road: Road }) {
             >
               Report Road Closure
             </button>
+
+            {/* Redirect message */}
+            {redirecting && (
+              <p className="text-xs text-[#D9524A]">
+                You must be signed in to report road closures. Redirecting in{" "}
+                <span className="font-bold">{countdown}</span>…
+              </p>
+            )}
           </div>
         </div>
       )}

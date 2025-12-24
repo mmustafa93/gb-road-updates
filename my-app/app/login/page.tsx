@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,7 +36,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-white px-4">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4 gap-6">
+      <Logo />  
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
 
         {/* Header */}
@@ -58,7 +60,11 @@ export default function LoginPage() {
             hover:bg-gray-100 transition
           "
         >
-          <span className="text-lg">🔵</span>
+          <img
+            src="./icons8-google.svg"
+            alt="Google logo"
+            className="w-4 h-4"
+         />
           Continue with Google
         </button>
 
