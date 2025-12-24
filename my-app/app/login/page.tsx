@@ -1,12 +1,43 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    // Success → go to homepage
+    router.push("/");
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
-        
+
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-[#1a1a1a]">
@@ -17,8 +48,9 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Google Login */}
+        {/* Google Login (placeholder for now) */}
         <button
+          type="button"
           className="
             w-full flex items-center justify-center gap-3
             border rounded-md px-4 py-2
@@ -38,13 +70,16 @@ export default function LoginPage() {
         </div>
 
         {/* Email Login */}
-        <form className="flex flex-col gap-4">
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div>
             <label className="text-xs font-medium text-gray-700">
               Email
             </label>
             <input
               type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="
                 mt-1 w-full rounded-md border px-3 py-2 text-sm
@@ -59,6 +94,9 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="
                 mt-1 w-full rounded-md border px-3 py-2 text-sm
@@ -67,15 +105,23 @@ export default function LoginPage() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
+            disabled={loading}
             className="
               mt-2 w-full bg-[#4a90d9] text-white
               rounded-md py-2 text-sm font-semibold
               hover:opacity-90 transition
+              disabled:opacity-60
             "
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 

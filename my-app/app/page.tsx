@@ -1,13 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "../components/Logo";
 import RoadCard from "../components/RoadCard";
 import { roads } from "../data/roads";
+import { supabase } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleSignOut() {
+  await supabase.auth.signOut();
+}
+
   return (
     <main className="min-h-screen bg-white px-4 py-6">
       <header className="max-w-5xl mx-auto mb-6 flex items-center justify-between">
-        
+
         {/* Left: Logo + tagline */}
         <div className="flex flex-col">
           <Logo />
@@ -16,18 +45,42 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Right: Auth button */}
-        <Link
-          href="/login"
-          className="
-            text-sm font-medium px-4 py-2 rounded-md
-            border border-gray-300
-            text-[#1a1a1a]
-            hover:bg-gray-100 transition
-          "
-        >
-          Sign in / Sign up
-        </Link>
+        {/* Right: Auth-aware UI */}
+        {user ? (
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-gray-700 font-medium">
+              Hello{" "}
+              <span className="font-semibold">
+                {user.user_metadata?.full_name || "there"}
+              </span>
+              !
+            </p>
+
+            <button
+              onClick={handleSignOut}
+              className="
+                text-sm px-3 py-1.5 rounded-md
+                border border-gray-300
+                text-gray-700
+                hover:bg-gray-100 transition
+              "
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="
+              text-sm font-medium px-4 py-2 rounded-md
+              border border-gray-300
+              text-[#1a1a1a]
+              hover:bg-gray-100 transition
+            "
+          >
+            Sign in / Sign up
+          </Link>
+        )}
 
       </header>
 
