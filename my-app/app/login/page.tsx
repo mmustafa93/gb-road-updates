@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import Logo from "@/components/Logo";
+import { signInWithGoogle, signInWithFacebook } from "@/lib/auth/oauth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,12 +39,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
+    const { error } = await signInWithGoogle();
 
     if (error) {
       setError(error.message);
@@ -51,6 +47,19 @@ export default function LoginPage() {
     }
     // On success, Supabase handles redirect
   }
+
+  async function handleFacebookLogin() {
+  setLoading(true);
+  setError(null);
+
+  const { error } = await signInWithFacebook();
+
+  if (error) {
+    setError(error.message);
+    setLoading(false);
+  }
+  // On success, Supabase handles redirect
+}
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4 gap-6">
@@ -73,7 +82,7 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           disabled={loading}
           className="
-            w-full flex items-center justify-center gap-3
+            w-full my-3 flex items-center justify-center gap-3
             border rounded-md px-4 py-2
             text-sm font-medium text-[#1a1a1a]
             hover:bg-gray-100 transition
@@ -86,6 +95,27 @@ export default function LoginPage() {
             className="w-4 h-4"
           />
           Continue with Google
+        </button>
+
+        {/* Facebook Login */}
+        <button
+        type="button"
+        onClick={handleFacebookLogin}
+        disabled={loading}
+        className="
+            w-full flex items-center justify-center gap-3
+            border rounded-md px-4 py-2
+            text-sm font-medium text-[#1a1a1a]
+            hover:bg-gray-100 transition
+            disabled:opacity-60
+        "
+        >
+        <img
+            src="/icons8-facebook.svg"
+            alt="Facebook logo"
+            className="w-4 h-4"
+        />
+        Continue with Facebook
         </button>
 
         {/* Divider */}
