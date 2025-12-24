@@ -1,8 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 
 export default function SignupPage() {
+  const router = useRouter();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    // Redirect to login after successful signup
+    router.push("/login");
+  };
+
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-md border rounded-md p-6 bg-white">
@@ -14,8 +59,11 @@ export default function SignupPage() {
           Join to help report and verify road conditions.
         </p>
 
-        <form className="mt-6 flex flex-col gap-4">
-          {/* Name */}
+        <form
+          className="mt-6 flex flex-col gap-4"
+          onSubmit={handleSignup}
+        >
+          {/* Full name */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Full name
@@ -23,6 +71,8 @@ export default function SignupPage() {
             <input
               type="text"
               required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               placeholder="Your name"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
@@ -36,6 +86,8 @@ export default function SignupPage() {
             <input
               type="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
@@ -49,12 +101,14 @@ export default function SignupPage() {
             <input
               type="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
 
-          {/* Confirm Password */}
+          {/* Confirm password */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Confirm password
@@ -62,22 +116,33 @@ export default function SignupPage() {
             <input
               type="password"
               required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm password"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
 
+          {/* Error message */}
+          {error && (
+            <p className="text-sm text-[#D9524A]">
+              {error}
+            </p>
+          )}
+
           {/* Sign up button */}
           <button
             type="submit"
+            disabled={loading}
             className="
               mt-2 bg-[#4a90d9] text-white
               font-bold text-sm
               px-4 py-2 rounded-md
               hover:opacity-90 transition
+              disabled:opacity-60
             "
           >
-            Sign up
+            {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
@@ -88,7 +153,7 @@ export default function SignupPage() {
           <div className="h-px bg-gray-200 flex-1" />
         </div>
 
-        {/* Google signup */}
+        {/* Google signup (wire later) */}
         <button
           className="
             w-full border border-gray-300
