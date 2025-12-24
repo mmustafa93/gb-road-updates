@@ -2,58 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
 import { Road } from "../data/roads";
+import type { User } from "@supabase/supabase-js";
 
 const STATUS_STYLES = {
-  Open: {
-    text: "#4a90d9",
-    bg: "rgba(74,144,217,0.1)",
-  },
-  Delays: {
-    text: "#F8B328",
-    bg: "rgba(248,179,40,0.15)",
-  },
-  Closed: {
-    text: "#D9524A",
-    bg: "rgba(217,82,74,0.12)",
-  },
+  Open: { text: "#4a90d9", bg: "rgba(74,144,217,0.1)" },
+  Delays: { text: "#F8B328", bg: "rgba(248,179,40,0.15)" },
+  Closed: { text: "#D9524A", bg: "rgba(217,82,74,0.12)" },
 };
 
-export default function RoadCard({ road }: { road: Road }) {
+interface RoadCardProps {
+  road: Road;
+  user: User | null;
+  disabled?: boolean;
+}
+
+export default function RoadCard({ road, user, disabled }: RoadCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
   const style = STATUS_STYLES[road.status];
   const router = useRouter();
 
-  // Get current user
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
-
   // Countdown + redirect logic
   useEffect(() => {
     if (!redirecting) return;
-
     if (countdown === 0) {
       router.push("/login");
       return;
     }
 
-    const timer = setTimeout(() => {
-      setCountdown((c) => c - 1);
-    }, 1000);
-
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [redirecting, countdown, router]);
 
   const handleReportClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (disabled) return;
 
     if (user) {
       router.push(`/report/${road.id}`);
@@ -67,10 +53,9 @@ export default function RoadCard({ road }: { road: Road }) {
     <div
       onClick={() => setExpanded(!expanded)}
       className={`
-        border rounded-md cursor-pointer bg-white
-        transition-all duration-300 ease-in-out
-        overflow-hidden
-        ${expanded ? "max-h-[700px]" : "max-h-[110px]"}
+        border rounded-md cursor-pointer
+        transition-all duration-300 ease-in-out overflow-hidden
+        ${expanded ? "max-h-[500px]" : "max-h-[110px]"}
       `}
     >
       {/* HEADER */}
@@ -97,50 +82,37 @@ export default function RoadCard({ road }: { road: Road }) {
       {/* EXPANDED CONTENT */}
       {expanded && (
         <div className="px-4 pb-4">
-          <p className="mt-4 text-[14px] text-[#1a1a1a]">
+          <p className="mt-2 text-[14px] text-[#1a1a1a]">
             <strong>Road Report:</strong> {road.roadReport}
           </p>
-
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
             <strong>Distance:</strong> {road.distance}
           </p>
-
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
-            <strong>Average Travel Time by Car:</strong>{" "}
-            {road.travelTimeCar}
+            <strong>Average Travel Time by Car:</strong> {road.travelTimeCar}
           </p>
-
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
-            <strong>Average Travel Time by Bus:</strong>{" "}
-            {road.travelTimeBus}
+            <strong>Average Travel Time by Bus:</strong> {road.travelTimeBus}
           </p>
-
           <p className="mt-3 text-[14px] text-[#1a1a1a]">
             <strong>Description:</strong> {road.description}
           </p>
 
           {/* REPORT BUTTON */}
-          <div className="mt-6 flex flex-col items-start gap-2">
+          <div className="mt-4 flex flex-col items-start gap-2">
             <button
               onClick={handleReportClick}
-              className="
-                text-sm font-bold
-                px-4 py-2 rounded-md
-                border border-[#D9524A]
-                text-[#D9524A]
-                hover:bg-[#D9524A] hover:text-white
-                transition
-              "
+              disabled={disabled}
+              className={`
+                text-sm font-bold px-4 py-2 rounded-md border border-[#D9524A] text-[#D9524A]
+                hover:bg-[#D9524A] hover:text-white transition
+                ${disabled ? "opacity-50 cursor-not-allowed hover:bg-none hover:text-[#D9524A]" : ""}
+              `}
             >
               Report Road Closure
             </button>
-
-            {/* Redirect message */}
-            {redirecting && (
-              <p className="text-xs text-[#D9524A]">
-                You must be signed in to report road closures. Redirecting in{" "}
-                <span className="font-bold">{countdown}</span>…
-              </p>
+            {disabled && (
+              <span className="text-[8px] font-light text-[#000000] px-1">You must be logged in to report road closures</span>
             )}
           </div>
         </div>

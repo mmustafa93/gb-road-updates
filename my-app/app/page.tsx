@@ -11,6 +11,7 @@ import type { User } from "@supabase/supabase-js";
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -26,19 +27,19 @@ export default function HomePage() {
       }
     );
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    return () => listener.subscription.unsubscribe();
   }, []);
 
   async function handleSignOut() {
-  await supabase.auth.signOut();
-}
+    setSigningOut(true); // immediately disable buttons
+    await supabase.auth.signOut();
+    setUser(null);       // update user state
+    setSigningOut(false);
+  }
 
   return (
     <main className="min-h-screen bg-white px-4 py-6">
       <header className="max-w-5xl mx-auto mb-6 flex items-center justify-between">
-
         {/* Left: Logo + tagline */}
         <div className="flex flex-col">
           <Logo />
@@ -49,9 +50,9 @@ export default function HomePage() {
 
         {/* Right: Auth-aware UI */}
         {authLoading ? (
-          <p className="text-sm text-gray-500 font-medium">
-            Loading details…
-          </p>
+          <p className="text-sm text-gray-500 font-medium">Loading details…</p>
+        ) : signingOut ? (
+          <p className="text-sm text-gray-500 font-medium">Signing out…</p>
         ) : user ? (
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-700 font-medium">
@@ -87,12 +88,16 @@ export default function HomePage() {
             Sign in / Sign up
           </Link>
         )}
-
       </header>
 
       <section className="max-w-5xl mx-auto flex flex-col gap-4">
         {roads.map((road) => (
-          <RoadCard key={road.id} road={road} />
+          <RoadCard
+            key={road.id}
+            road={road}
+            user={user}
+            disabled={signingOut || !user}
+          />
         ))}
       </section>
 
