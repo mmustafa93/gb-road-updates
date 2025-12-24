@@ -31,15 +31,32 @@ export default function LoginPage() {
       return;
     }
 
-    // Success → go to homepage
     router.push("/");
+  }
+
+  async function handleGoogleLogin() {
+    setLoading(true);
+    setError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+    // On success, Supabase handles redirect
   }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4 gap-6">
-      <Logo />  
-      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
+      <Logo />
 
+      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-[#1a1a1a]">
@@ -50,21 +67,24 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Google Login (placeholder for now) */}
+        {/* Google Login */}
         <button
           type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
           className="
             w-full flex items-center justify-center gap-3
             border rounded-md px-4 py-2
             text-sm font-medium text-[#1a1a1a]
             hover:bg-gray-100 transition
+            disabled:opacity-60
           "
         >
           <img
-            src="./icons8-google.svg"
+            src="/icons8-google.svg"
             alt="Google logo"
             className="w-4 h-4"
-         />
+          />
           Continue with Google
         </button>
 
