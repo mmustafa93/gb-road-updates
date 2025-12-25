@@ -24,31 +24,3 @@ export async function signInWithFacebook() {
   });
 }
 
-/* ======================
-   Phone (SMS OTP) auth
-====================== */
-
-/**
- * Step 1: Send OTP to phone number
- * Phone must be in E.164 format: +923001234567
- */
-export async function sendPhoneOtp(phone: string) {
-  return supabase.auth.signInWithOtp({
-    phone,
-  });
-}
-
-/**
- * Step 2: Verify OTP
- * This completes BOTH signup & login
- */
-export async function verifyPhoneOtp(
-  phone: string,
-  token: string
-) {
-  return supabase.auth.verifyOtp({
-    phone,
-    token,
-    type: "sms",
-  });
-}
