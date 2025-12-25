@@ -76,55 +76,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Google Login */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="
-            w-full my-3 flex items-center justify-center gap-3
-            border rounded-md px-4 py-2
-            text-sm font-medium text-[#1a1a1a]
-            hover:bg-gray-100 transition
-            disabled:opacity-60
-          "
-        >
-          <img
-            src="/icons8-google.svg"
-            alt="Google logo"
-            className="w-4 h-4"
-          />
-          Continue with Google
-        </button>
-
-        {/* Facebook Login */}
-        <button
-        type="button"
-        onClick={handleFacebookLogin}
-        disabled={loading}
-        className="
-            w-full flex items-center justify-center gap-3
-            border rounded-md px-4 py-2
-            text-sm font-medium text-[#1a1a1a]
-            hover:bg-gray-100 transition
-            disabled:opacity-60
-        "
-        >
-        <img
-            src="/icons8-facebook.svg"
-            alt="Facebook logo"
-            className="w-4 h-4"
-        />
-        Continue with Facebook
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-6">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs text-gray-500">OR</span>
-          <div className="flex-1 h-px bg-gray-200" />
-        </div>
-
         {/* Email Login */}
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div>
@@ -180,6 +131,55 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-500">OR</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+         {/* Google Login */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="
+            w-full my-3 flex items-center justify-center gap-3
+            border rounded-md px-4 py-2
+            text-sm font-medium text-[#1a1a1a]
+            hover:bg-gray-100 transition
+            disabled:opacity-60
+          "
+        >
+          <img
+            src="/icons8-google.svg"
+            alt="Google logo"
+            className="w-4 h-4"
+          />
+          Continue with Google
+        </button>
+
+        {/* Facebook Login */}
+        <button
+        type="button"
+        onClick={handleFacebookLogin}
+        disabled={loading}
+        className="
+            w-full flex items-center justify-center gap-3
+            border rounded-md px-4 py-2
+            text-sm font-medium text-[#1a1a1a]
+            hover:bg-gray-100 transition
+            disabled:opacity-60
+        "
+        >
+        <img
+            src="/icons8-facebook.svg"
+            alt="Facebook logo"
+            className="w-4 h-4"
+        />
+        Continue with Facebook
+        </button>
 
         {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
