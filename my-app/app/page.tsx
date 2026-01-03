@@ -63,6 +63,19 @@ export default function HomePage() {
               !
             </p>
 
+            <button>
+              <Link
+                href="/report"
+                className="
+                  text-sm font-medium px-4 py-2 rounded-md
+                  bg-blue-600 text-white
+                  hover:bg-blue-700 transition
+                "
+              >
+                My Reports
+              </Link>
+            </button>
+            
             <button
               onClick={handleSignOut}
               className="
