@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import RoadCard from "@/components/RoadCard";
+import RoadStatusTicker from "../RoadStatusTicker";
 import { roads } from "@/data/roads";
 import { supabase } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -96,7 +97,9 @@ export default function HomePageClient() {
           </Link>
         )}
       </header>
-
+      <section className="max-w-5xl mx-auto mb-6">
+        <RoadStatusTicker />
+      </section>
       <section className="max-w-5xl mx-auto flex flex-col gap-4">
         {roads.map((road) => (
           <RoadCard
