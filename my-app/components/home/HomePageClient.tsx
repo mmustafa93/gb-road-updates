@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import Logo from "@/components/Logo";
 import Navbar from "@/components/navbar/Navbar";
 import RoadCard from "@/components/RoadCard";
 import RoadStatusTicker from "../RoadStatusTicker";
