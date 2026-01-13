@@ -80,7 +80,6 @@ export default function RoadCard({ road, user, disabled }: RoadCardProps) {
 
   const handleReportClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (disabled) return;
 
     if (user) {
       router.push(`/report/${road.id}`);
@@ -165,18 +164,20 @@ export default function RoadCard({ road, user, disabled }: RoadCardProps) {
           <div className="mt-4 flex flex-col items-start gap-2">
             <button
               onClick={handleReportClick}
-              disabled={disabled}
+              disabled={redirecting}
               className={`
                 text-sm font-bold px-4 py-2 rounded-md
                 border border-[#D9524A] text-[#D9524A]
                 hover:bg-[#D9524A] hover:text-white transition
-                ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+                ${redirecting ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
-              Report Road Issue
+              {redirecting
+                ? `Redirecting to login in ${countdown}s...`
+                : "Report Road Issue"}
             </button>
 
-            {disabled && (
+            {!user && !redirecting && (
               <span className="text-[10px] text-gray-600">
                 You must be logged in to submit a report
               </span>

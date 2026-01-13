@@ -2,17 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { roads } from "@/data/roads";
 import Logo from "@/components/Logo";
+import Navbar from "@/components/navbar/Navbar";
+import RoadStatusTicker from "@/components/RoadStatusTicker";
 import { supabase } from "@/lib/supabase/client";
+
+interface Road {
+  id: string;
+  name: string;
+}
+
+interface RoadSegment {
+  id: string;
+  title: string;
+}
 
 export default function ReportRoadPage() {
   const { roadId } = useParams<{ roadId: string }>();
   const router = useRouter();
 
-  const road = roads.find((r) => r.id === roadId);
+  const [road, setRoad] = useState<Road | null>(null);
+  const [segments, setSegments] = useState<RoadSegment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [town, setTown] = useState("");
+  const [subdivision, setSubdivision] = useState("");
   const [duration, setDuration] = useState("");
   const [cause, setCause] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -20,38 +33,40 @@ export default function ReportRoadPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Redirect to homepage 10 seconds after submission
+  useEffect(() => {
+    async function fetchData() {
+      const { data: roadData } = await supabase
+        .from("roads")
+        .select("id, name")
+        .eq("id", roadId)
+        .single();
+
+      const { data: segmentData } = await supabase
+        .from("road_segments")
+        .select("id, title")
+        .eq("road_id", roadId)
+        .order("sequence_order");
+
+      setRoad(roadData);
+      setSegments(segmentData || []);
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [roadId]);
+
   useEffect(() => {
     if (!submitted) return;
-
-    const timer = setTimeout(() => {
-      router.push("/");
-    }, 10000);
-
+    const timer = setTimeout(() => router.push("/"), 8000);
     return () => clearTimeout(timer);
   }, [submitted, router]);
 
-  if (!road) {
-    return <p className="p-6">Road not found.</p>;
+  if (loading) {
+    return <p className="p-6 text-sm text-gray-500">Loading…</p>;
   }
 
-  if (submitted) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-4 bg-white">
-        <div className="max-w-md text-center">
-          <h1 className="text-xl font-bold text-[#1a1a1a]">
-            Report submitted
-          </h1>
-          <p className="mt-3 text-sm text-gray-600">
-            Thank you for helping keep road information accurate. Your report
-            will be reviewed before being published.
-          </p>
-          <p className="mt-4 text-xs text-gray-500">
-            You will be redirected to the homepage shortly.
-          </p>
-        </div>
-      </main>
-    );
+  if (!road) {
+    return <p className="p-6">Road not found.</p>;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -63,7 +78,7 @@ export default function ReportRoadPage() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      alert("You must be logged in to submit a road report.");
+      alert("You must be logged in to submit a report.");
       setSubmitting(false);
       return;
     }
@@ -71,86 +86,77 @@ export default function ReportRoadPage() {
     let photoUrl: string | null = null;
 
     if (photo) {
-      const filePath = `${user.id}/${Date.now()}-${photo.name}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("road-reports")
-        .upload(filePath, photo);
-
-      if (uploadError) {
-        console.error(uploadError);
-        alert("Failed to upload photo.");
-        setSubmitting(false);
-        return;
-      }
-
-      photoUrl = supabase.storage
-        .from("road-reports")
-        .getPublicUrl(filePath).data.publicUrl;
+      const path = `${user.id}/${Date.now()}-${photo.name}`;
+      await supabase.storage.from("road-reports").upload(path, photo);
+      photoUrl = supabase.storage.from("road-reports").getPublicUrl(path)
+        .data.publicUrl;
     }
 
-    const { error } = await supabase.from("road_reports").insert({
+    await supabase.from("road_reports").insert({
       road_id: road.id,
       road_name: road.name,
       user_id: user.id,
-      nearest_town: town,
+      nearest_town: subdivision,
       blocked_duration: duration,
       cause,
       photo_url: photoUrl,
     });
-
-    if (error) {
-      console.error(error);
-      alert("Failed to submit report.");
-      setSubmitting(false);
-      return;
-    }
 
     setSubmitted(true);
     setSubmitting(false);
   }
 
   return (
-    <main className="min-h-screen px-4 py-8 bg-white flex flex-col items-center justify-center gap-6">
-      <Logo />
+    <main className="min-h-screen bg-white px-4 py-6">
+      {/* HEADER STRIP */}
+      <Navbar />
+      
+      {/* STATUS TICKER */}
+            <section className="max-w-5xl mx-auto mb-6">
+              <RoadStatusTicker />
+            </section>
 
-      <div className="max-w-xl mx-auto text-gray-600 w-full">
-        <h1 className="text-xl font-bold text-[#1a1a1a]">
+      {/* FORM CARD */}
+      <section className="max-w-xl mx-auto border rounded-md p-5">
+        <h1 className="text-[18px] font-bold text-[#1a1a1a]">
           Report Road Issue
         </h1>
 
-        <p className="mt-1 text-sm text-gray-600">{road.name}</p>
+        <p className="mt-1 text-[13px] text-gray-600">
+          Road: <span className="font-semibold">{road.name}</span>
+        </p>
 
-        <form
-          className="mt-6 flex flex-col gap-3"
-          onSubmit={handleSubmit}
-        >
-          {/* Nearest town */}
+        <form className="mt-5 flex flex-col gap-4" onSubmit={handleSubmit}>
+          {/* Subdivision */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Nearest town or village
+              Affected subdivision
             </label>
-            <input
+            <select
               required
-              type="text"
-              value={town}
-              onChange={(e) => setTown(e.target.value)}
-              placeholder="e.g. Aliabad, Gahkuch"
+              value={subdivision}
+              onChange={(e) => setSubdivision(e.target.value)}
               className="w-full border rounded-md px-3 py-2 text-sm"
-            />
+            >
+              <option value="">Select a section</option>
+              {segments.map((s) => (
+                <option key={s.id} value={s.title}>
+                  {s.title}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Duration */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              How long has the road been blocked?
+              Blockage duration
             </label>
             <input
               required
-              type="text"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              placeholder="e.g. 2 hours, since last night"
+              placeholder="e.g. 3 hours, since morning"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
@@ -158,7 +164,7 @@ export default function ReportRoadPage() {
           {/* Cause */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Cause of blockage
+              Cause
             </label>
             <select
               required
@@ -166,7 +172,7 @@ export default function ReportRoadPage() {
               onChange={(e) => setCause(e.target.value)}
               className="w-full border rounded-md px-3 py-2 text-sm"
             >
-              <option value="">Select a cause</option>
+              <option value="">Select cause</option>
               <option>Landslide</option>
               <option>Snowfall</option>
               <option>Flooding</option>
@@ -179,7 +185,7 @@ export default function ReportRoadPage() {
           {/* Photo */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Upload photo (optional)
+              Photo (optional)
             </label>
             <input
               type="file"
@@ -189,22 +195,19 @@ export default function ReportRoadPage() {
             />
           </div>
 
-          {/* Submit */}
           <button
-            type="submit"
             disabled={submitting}
             className="
-              mt-4 bg-[#D9524A] text-white
-              font-bold text-sm
-              px-4 py-2 rounded-md
+              mt-2 bg-[#D9524A] text-white
+              font-bold text-sm px-4 py-2 rounded-md
               hover:opacity-90 transition
               disabled:opacity-50
             "
           >
-            {submitting ? "Submitting..." : "Submit Report"}
+            {submitting ? "Submitting…" : "Submit Report"}
           </button>
         </form>
-      </div>
+      </section>
     </main>
   );
 }
