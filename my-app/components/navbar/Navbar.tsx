@@ -28,7 +28,7 @@ export default function Navbar({
         {/* LEFT */}
         <div className="flex flex-col">
           <Logo />
-          <p className="text-[12px] text-gray-600 mt-1">
+          <p className="text-[11px] sm:text-[12px] text-gray-600 mt-0.5">
             Powered by community reports
           </p>
         </div>
