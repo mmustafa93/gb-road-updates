@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Logo() {
   return (
     <Link href="/" className="cursor-pointer">
-      <div className="text-2xl md:text-3xl font-black tracking-tight">
+      <div className="text-lg sm:text-xl md:text-3xl font-black tracking-tight leading-none">
         <span style={{ color: "#4a90d9" }}>gb</span>
         <span className="text-[#1a1a1a] font-black">road</span>
         <span className="text-[#1a1a1a] font-bold">updates</span>
