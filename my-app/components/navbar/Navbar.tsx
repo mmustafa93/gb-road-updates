@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import type { User } from "@supabase/supabase-js";
 
 type NavbarProps = {
-  user: any;
+  user: User | null;
   authLoading: boolean;
   signingOut: boolean;
   onSignOut: () => void;
