@@ -84,7 +84,7 @@ export default function HomePageClient() {
       </section>
 
       {/* ROAD LIST */}
-      <section className="max-w-5xl mx-auto flex flex-col gap-4">
+      <section className="min-h-screen max-w-5xl mx-auto flex flex-col gap-4">
         {loadingRoads ? (
           <p className="text-sm text-gray-500">Loading roads…</p>
         ) : (

@@ -95,7 +95,7 @@ export default function RoadCard({ road, user, disabled }: RoadCardProps) {
       className={`
         border rounded-md cursor-pointer
         transition-all duration-300 ease-in-out overflow-hidden
-        ${expanded ? "max-h-[600px]" : "max-h-[110px]"}
+        ${expanded ? "max-h-[800px]" : "max-h-[110px]"}
       `}
     >
       {/* HEADER */}
