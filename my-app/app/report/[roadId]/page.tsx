@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/Navbar";
 import RoadStatusTicker from "@/components/RoadStatusTicker";
 import { supabase } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface Road {
   id: string;
@@ -25,7 +26,7 @@ export default function ReportRoadPage() {
   const [loading, setLoading] = useState(true);
 
   // Auth state for Navbar & access control
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
 
@@ -125,6 +126,12 @@ export default function ReportRoadPage() {
       await supabase.storage.from("road-reports").upload(path, photo);
       photoUrl = supabase.storage.from("road-reports").getPublicUrl(path)
         .data.publicUrl;
+    }
+
+    if (!road) {
+      alert("Road data not loaded. Please refresh the page.");
+      setSubmitting(false);
+      return;
     }
 
     await supabase.from("road_reports").insert({
