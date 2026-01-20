@@ -33,7 +33,7 @@ export default function RoadStatusTicker() {
   if (loading || roads.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden bg-gray-100 border-y border-gray-200">
+    <div className="relative overflow-hidden bg-gray-100 border-y border-gray-200 mt-4">
       <div className="flex w-max animate-ticker gap-8 px-4 py-2">
         {[...roads, ...roads].map((road, index) => (
           <div
