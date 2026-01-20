@@ -6,7 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 
 const STATUS_STYLES: Record<string, { text: string; bg: string }> = {
-  open: { text: "#4a90d9", bg: "rgba(74,144,217,0.1)" },
+  open: { text: "#0aa749ff", bg: "rgba(74,144,217,0.1)" },
   delays: { text: "#F8B328", bg: "rgba(248,179,40,0.15)" },
   closed: { text: "#D9524A", bg: "rgba(217,82,74,0.12)" },
 };
@@ -32,7 +32,8 @@ interface RoadSegment {
   sequence_order: number;
 }
 
-export default function RoadCard({ road, user, disabled }: RoadCardProps) {
+
+export default function RoadCard({ road, user }: RoadCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [segments, setSegments] = useState<RoadSegment[]>([]);
   const [loadingSegments, setLoadingSegments] = useState(false);
@@ -89,6 +90,13 @@ export default function RoadCard({ road, user, disabled }: RoadCardProps) {
     }
   };
 
+  const status = road.status?.trim().toLowerCase();
+
+  let dotColor = "#F8B328"; // yellow by default
+
+  if (status === "open") dotColor = "#04b84cff";
+  else if (status === "closed") dotColor = "#D9524A";
+
   return (
     <div
       onClick={() => setExpanded(!expanded)}
@@ -101,22 +109,25 @@ export default function RoadCard({ road, user, disabled }: RoadCardProps) {
       {/* HEADER */}
       <div className="p-4 flex items-center justify-between">
         <div>
-          <h2 className="text-[18px] font-bold text-[#1a1a1a]">
+          <h2 className="text-[15px] sm:text-[16px] font-semibold text-[#1a1a1a] leading-snug">
             {road.name}
           </h2>
+
           {road.distance && (
-            <p className="text-[12px] text-gray-500 font-medium mt-1">
-              Total distance: {road.distance} km
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              {road.distance} km
             </p>
           )}
         </div>
 
+        {/* Status dot */}
         <span
-          className="text-[12px] font-bold px-3 py-1 rounded-full capitalize"
-          style={{ color: style.text, backgroundColor: style.bg }}
-        >
-          {road.status}
-        </span>
+          className="w-5 h-5 rounded-full shrink-0"
+          style={{
+            backgroundColor: dotColor,
+            boxShadow: `0 0 0 4px ${dotColor}22`,
+          }}
+        />
       </div>
 
       {/* EXPANDED CONTENT */}
