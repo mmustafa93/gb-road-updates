@@ -41,7 +41,7 @@ export default function RoadCard({ road, user }: RoadCardProps) {
   const [countdown, setCountdown] = useState(5);
 
   const router = useRouter();
-  const style = STATUS_STYLES[road.status] ?? STATUS_STYLES.open;
+  //const style = STATUS_STYLES[road.status] ?? STATUS_STYLES.open;
 
   /* Fetch road segments when expanded */
   useEffect(() => {
@@ -92,10 +92,9 @@ export default function RoadCard({ road, user }: RoadCardProps) {
 
   const status = road.status?.trim().toLowerCase();
 
-  let dotColor = "#F8B328"; // yellow by default
-
-  if (status === "open") dotColor = "#04b84cff";
-  else if (status === "closed") dotColor = "#D9524A";
+let active: "red" | "yellow" | "green" = "yellow";
+if (status === "open") active = "green";
+else if (status === "closed") active = "red";
 
   return (
     <div
@@ -107,28 +106,50 @@ export default function RoadCard({ road, user }: RoadCardProps) {
       `}
     >
       {/* HEADER */}
-      <div className="p-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-[15px] sm:text-[16px] font-semibold text-[#1a1a1a] leading-snug">
-            {road.name}
-          </h2>
+<div className="p-4 flex items-center justify-between">
+  {/* Left: Road info */}
+  <div className="min-w-0">
+    <h2 className="text-[15px] sm:text-[16px] font-semibold text-[#1a1a1a] leading-snug">
+      {road.name}
+    </h2>
 
-          {road.distance && (
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              {road.distance} km
-            </p>
-          )}
-        </div>
+    {road.distance && (
+      <p className="text-[11px] text-gray-500 mt-0.5">
+        {road.distance} km
+      </p>
+    )}
+  </div>
 
-        {/* Status dot */}
-        <span
-          className="w-5 h-5 rounded-full shrink-0"
-          style={{
-            backgroundColor: dotColor,
-            boxShadow: `0 0 0 4px ${dotColor}22`,
-          }}
-        />
-      </div>
+  {/* Right: Status signal */}
+<div className="flex items-center justify-center shrink-0">
+  <span
+    className="relative w-4 h-4 sm:w-5 sm:h-5 rounded-full"
+    style={{
+      backgroundColor:
+        active === "green"
+          ? "#0aa749ff"
+          : active === "red"
+          ? "#D9524A"
+          : "#F8B328",
+      boxShadow:
+        active === "green"
+          ? "0 0 0 4px rgba(10,167,73,0.15)"
+          : active === "red"
+          ? "0 0 0 4px rgba(217,82,74,0.18)"
+          : "0 0 0 4px rgba(248,179,40,0.2)",
+    }}
+  >
+    {/* Inner highlight */}
+    <span
+      className="absolute top-[2px] left-[2px] w-1.5 h-1.5 rounded-full opacity-70"
+      style={{
+        background:
+          "linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.2))",
+      }}
+    />
+  </span>
+</div>
+</div>
 
       {/* EXPANDED CONTENT */}
       {expanded && (
