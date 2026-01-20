@@ -23,8 +23,8 @@ export default function Navbar({
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <header className="w-full border-b border-gray-100">
-      <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="w-full">
+      <div className="max-w-5xl mx-auto flex items-center justify-between">
         {/* LEFT */}
         <div className="flex flex-col">
           <Logo />
@@ -93,7 +93,7 @@ export default function Navbar({
 
                 {/* Mobile Menu Dialog */}
                 {isMenuOpen && (
-                  <div className="absolute top-16 right-4 w-64 bg-white shadow-lg rounded-md border border-gray-200 p-4 z-50 flex flex-col gap-3">
+                  <div className="absolute top-16 right-4 w-64 bg-white shadow-lg rounded-md border border-gray-200 p-4 z-50 flex flex-col gap-3 mt-1">
                     <p className="text-sm text-gray-700 font-medium">
                       Hello{" "}
                       <span className="font-semibold">
@@ -103,7 +103,8 @@ export default function Navbar({
                     </p>
                     <Link
                       href="/report"
-                      className="text-sm font-medium px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                      className="text-sm font-medium px-3 py-2 rounded-md text-white hover:opacity-90 transition text-center"
+                      style={{ backgroundColor: "#4a90d9" }}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       My Reports
