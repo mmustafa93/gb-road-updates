@@ -65,7 +65,7 @@ export default function ReportRoadPage() {
 
   useEffect(() => {
     if (!submitted) return;
-    const timer = setTimeout(() => router.push("/"), 8000);
+    const timer = setTimeout(() => router.push("/"), 3000);
     return () => clearTimeout(timer);
   }, [submitted, router]);
 
@@ -325,6 +325,11 @@ export default function ReportRoadPage() {
                 {submitting ? "Submitting…" : "Submit Report"}
               </button>
             </div>
+            {submitted && (
+              <p className="text-center text-green-600 text-sm mt-4">
+                Report Submitted! Redirecting to homepage...
+              </p>
+            )}
           </form>
         </div>
       </div>
