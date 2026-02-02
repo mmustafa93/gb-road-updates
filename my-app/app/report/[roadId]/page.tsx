@@ -149,7 +149,7 @@ export default function ReportRoadPage() {
   }
 
   return (
-  <main className="min-h-screen bg-white">
+  <main className="min-h-screen bg-white px-4 py-6">
     {/* NAVBAR */}
     <Navbar
       user={user}
@@ -159,7 +159,7 @@ export default function ReportRoadPage() {
     />
 
     {/* STATUS STRIP */}
-    <section className="max-w-5xl mx-auto px-4 mt-4">
+    <section className="max-w-5xl mx-auto">
       <RoadStatusTicker />
     </section>
 
