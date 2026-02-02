@@ -55,7 +55,14 @@ export default function Navbar({
 
                 <Link
                   href="/report"
-                  className="text-sm font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                  className="text-sm font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-white transition"
+                  style={{ backgroundColor: "#4a90d9" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#3A7BBF")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#4a90d9")
+                  }
                 >
                   My Reports
                 </Link>

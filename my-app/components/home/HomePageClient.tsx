@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/navbar/Navbar";
 import RoadCard from "@/components/RoadCard";
-import RoadStatusTicker from "../RoadStatusTicker";
+import RoadStatusTicker from "@/components/RoadStatusTicker";
 import { supabase } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 

@@ -14,6 +14,7 @@ type RoadReport = {
   blocked_duration: string;
   cause: string;
   created_at: string;
+  status: "pending" | "verified" | "incorrect";
 };
 
 export default function MyReportsPage() {
@@ -23,6 +24,9 @@ export default function MyReportsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
+
+  // Placeholder for admin check
+  const isAdmin = user?.email?.endsWith("@admin.com");
 
   useEffect(() => {
     async function loadReports() {
@@ -38,21 +42,25 @@ export default function MyReportsPage() {
       setUser(user);
       setAuthLoading(false);
 
-      const { data, error } = await supabase
-        .from("road_reports")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const query = supabase.from("road_reports").select("*");
+
+      if (!isAdmin) {
+        query.eq("user_id", user.id);
+      }
+
+      const { data, error } = await query.order("created_at", {
+        ascending: false,
+      });
 
       if (!error && data) {
-        setReports(data);
+        setReports(data as RoadReport[]);
       }
 
       setLoading(false);
     }
 
     loadReports();
-  }, [router]);
+  }, [router, isAdmin]);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -60,6 +68,26 @@ export default function MyReportsPage() {
     setUser(null);
     setSigningOut(false);
     router.push("/");
+  }
+
+  async function handleUpdateStatus(
+    reportId: string,
+    newStatus: "verified" | "incorrect"
+  ) {
+    const { error } = await supabase
+      .from("road_reports")
+      .update({ status: newStatus })
+      .eq("id", reportId);
+
+    if (!error) {
+      setReports((prevReports) =>
+        prevReports.map((report) =>
+          report.id === reportId ? { ...report, status: newStatus } : report
+        )
+      );
+    } else {
+      console.error("Error updating report status:", error);
+    }
   }
 
   return (
@@ -80,7 +108,7 @@ export default function MyReportsPage() {
           <div className="border rounded-md bg-white overflow-hidden">
             <div className="px-5 py-4 border-b bg-gray-50">
               <h1 className="text-[18px] font-bold text-[#1a1a1a]">
-                My Road Reports
+                {isAdmin ? "All Road Reports" : "My Road Reports"}
               </h1>
             </div>
 
@@ -98,9 +126,22 @@ export default function MyReportsPage() {
                       key={report.id}
                       className="border rounded-md p-4 bg-white"
                     >
-                      <p className="font-semibold text-[#1a1a1a]">
-                        {report.road_name}
-                      </p>
+                      <div className="flex justify-between items-start">
+                        <p className="font-semibold text-[#1a1a1a]">
+                          {report.road_name}
+                        </p>
+                        <span
+                          className={`text-xs font-bold px-2 py-1 rounded-full ${
+                            report.status === "pending"
+                              ? "bg-yellow-200 text-yellow-800"
+                              : report.status === "verified"
+                              ? "bg-green-200 text-green-800"
+                              : "bg-red-200 text-red-800"
+                          }`}
+                        >
+                          {report.status}
+                        </span>
+                      </div>
 
                       <p className="text-sm text-gray-600 mt-1">
                         Near: {report.nearest_town}
@@ -118,6 +159,26 @@ export default function MyReportsPage() {
                         Submitted on{" "}
                         {new Date(report.created_at).toLocaleString()}
                       </p>
+                      {isAdmin && report.status === "pending" && (
+                        <div className="flex gap-2 mt-4">
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(report.id, "verified")
+                            }
+                            className="text-sm bg-green-500 text-white px-3 py-1 rounded-md"
+                          >
+                            Verify
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(report.id, "incorrect")
+                            }
+                            className="text-sm bg-red-500 text-white px-3 py-1 rounded-md"
+                          >
+                            Incorrect
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
