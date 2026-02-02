@@ -30,6 +30,9 @@ export default function ReportRoadPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
 
+  // Placeholder for admin check
+  const isAdmin = user?.email?.endsWith("@admin.com");
+
   const [subdivision, setSubdivision] = useState("");
   const [duration, setDuration] = useState("");
   const [cause, setCause] = useState("");
@@ -194,9 +197,9 @@ export default function ReportRoadPage() {
                 onChange={(e) => setSubdivision(e.target.value)}
                 className="
                   w-full rounded-md border border-gray-300
-                  px-3 py-2 text-sm
+                  px-3 py-2 text-sm text-gray-900
                   focus:outline-none focus:ring-2 focus:ring-blue-500
-                  placeholder:text-gray-500
+                  placeholder:text-gray-700
                 "
               >
                 <option value="">Select a subdivision</option>
@@ -220,8 +223,8 @@ export default function ReportRoadPage() {
                 placeholder="e.g. 3 hours, since morning"
                 className="
                   w-full rounded-md border border-gray-300
-                  px-3 py-2 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-500
+                  px-3 py-2 text-sm text-gray-900
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-700
                 "
               />
             </div>
@@ -237,7 +240,7 @@ export default function ReportRoadPage() {
                 onChange={(e) => setCause(e.target.value)}
                 className="
                   w-full rounded-md border border-gray-300
-                  px-3 py-2 text-sm placeholder:text-gray-600
+                  px-3 py-2 text-sm text-gray-900 placeholder:text-gray-700
                   focus:outline-none focus:ring-2 focus:ring-blue-500
                 "
               >
@@ -257,11 +260,53 @@ export default function ReportRoadPage() {
                 Upload photo (optional)
               </label>
               <input
+                id="photo-upload"
                 type="file"
                 accept="image/*"
                 onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                className="text-sm text-gray-600"
+                className="hidden"
               />
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="photo-upload"
+                  className="
+                    text-white
+                    font-medium text-sm
+                    px-4 py-2 rounded-md
+                    cursor-pointer transition
+                  "
+                  style={{ backgroundColor: '#4a90d9' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3A7BBF'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4a90d9'}
+                >
+                  Choose File
+                </label>
+                {photo && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-800">{photo.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPhoto(null)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* ACTION */}
